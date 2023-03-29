@@ -33,6 +33,10 @@ def parse_args():
         '--no-validate',
         action='store_true',
         help='whether not to evaluate the checkpoint during training')
+    parser.add_argument(
+        '--torchcompile',
+        action='store_true',
+        help='whether not to enable the torch compile during training')
     group_gpus = parser.add_mutually_exclusive_group()
     group_gpus.add_argument(
         '--gpus',
@@ -199,6 +203,9 @@ def main():
         cfg.model,
         train_cfg=cfg.get('train_cfg'),
         test_cfg=cfg.get('test_cfg'))
+    if cfg.get('torchcompile', True):
+        logger.info(f'enable torch compile')
+        model = torch.compile(model)
     model.init_weights()
 
     # SyncBN is not support for DP
